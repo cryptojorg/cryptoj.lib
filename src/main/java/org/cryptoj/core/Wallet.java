@@ -1,6 +1,5 @@
 package org.cryptoj.core;
 
-import java.io.File;
 import java.util.List;
 
 import org.json.JSONException;
@@ -15,12 +14,8 @@ public abstract class Wallet {
 	public static final String JSON_TECHNOLOGY = "technology";
 	public static final String JSON_NETWORK = "network";
 
-	public static final String DEFAULT_PATH_TO_DIRECTORY = System.getProperty("user.home");
 	public static final String JSON_FILE_EXTENSION = "json";
 
-	private String pathToDirectory = DEFAULT_PATH_TO_DIRECTORY;
-	private String absolutePath = null;
-	
 	private List<String> mnemonicWords = null;
 	private String passPhrase = null;
 	protected Account account = null;
@@ -32,28 +27,16 @@ public abstract class Wallet {
 		this.passPhrase = passPhrase;
 		account = protocol.createAccount(mnemonicWords, passPhrase, protocol.getNetwork());
 	}
-	
+
 	public Wallet(JSONObject walletJson, String passPhrase) throws JSONException {
 		validateWalletJson(walletJson);
-		
+
 		JSONObject accountJson = walletJson.getJSONObject(JSON_ACCOUNT);
 		Protocol protocol = ProtocolFactory.getInstance(walletJson);
 
 		this.passPhrase = passPhrase;
 		account = protocol.restoreAccount(accountJson, passPhrase);
 	}
-
-	// TODO remove/cleanup
-//	public Wallet(File file, String passPhrase) throws Exception {
-//		this(readWalletFile(file), passPhrase);
-//	}
-//
-//	private Protocol getProtocol(JSONObject walletJson) throws JSONException {
-//		Technology technology = Technology.get(walletJson.getString(JSON_TECHNOLOGY));
-//		Network network = Network.get(walletJson.getString(JSON_NETWORK));
-//		Protocol protocol = ProtocolFactory.getInstance(technology, network);
-//		return protocol;
-//	}
 
 	protected void processProtocol(Protocol p) {
 		if(p == null) {
@@ -79,7 +62,7 @@ public abstract class Wallet {
 	public String getSecret() {
 		return getAccount().getSecret();
 	}
-	
+
 	public abstract String getSecretLabel();
 
 	public String getPassPhrase() {
@@ -94,26 +77,17 @@ public abstract class Wallet {
 		return account;
 	}
 
-	public String getPathToDirectory() {
-		return pathToDirectory;
-	}
-
-	public void setPathToDirectory(String pathToFile) {
-		this.pathToDirectory = pathToFile;
-	}
-
-	public String getAbsolutePath() {
-		return absolutePath != null ? absolutePath : String.format("%s%s%s", getPathToDirectory(), File.separator, getFileName());
-	}
-
+	/**
+	 * Returns the wallet file name (without path information).
+	 */
 	public String getFileName() {
-		return String.format("%s.%s", getFileBaseName(), JSON_FILE_EXTENSION);
+		return String.format("%s.%s", getBaseName(), getFileExtension());
 	}
 
 	/**
-	 * Returns the wallet file base name without path to file and without extension.
+	 * Returns the wallet base name without path to file and without extension.
 	 */
-	public String getFileBaseName() {
+	public String getBaseName() {
 		if(getAccount() == null) {
 			return null;
 		}
@@ -155,27 +129,8 @@ public abstract class Wallet {
 		}
 	}
 
-	/**
-	 * Reads the file into a JSON object and performs some basic checks.
-	 * Checks include test for version, technology, network and account.
-	 * @param file the file to read/verify
-	 * @return the file content as JSON object
-	 * @throws JSONException
-	 */
-//	protected static JSONObject readWalletFile(File file) throws JSONException {
-//		String jsonString = FileUtility.readTextFile(file);
-//
-//		if(jsonString.isEmpty()) {
-//			throw new JSONException("Empty wallet file");
-//		}
-//
-//		// convert wallet file string to json object
-//		JSONObject node = new JSONObject(jsonString);
-//
-//	}
-	
 	protected void validateWalletJson(JSONObject walletJson) throws JSONException {
-		
+
 		// check and extract version
 		if(!walletJson.has(JSON_VERSION)) {
 			throw new JSONException("Wallet has no version attribute");
