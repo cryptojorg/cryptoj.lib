@@ -74,7 +74,9 @@ public class EntropyUtilityTest extends BaseTest {
 			}
 		}
 		
-		assertTrue("Failed to create twice same entropy", found);
+		if(steps > 0) {
+			assertTrue("Failed to create twice same entropy", found);
+		}
 		
 		log("--- end testRandomness16() ---");
 	}
