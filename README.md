@@ -1,9 +1,9 @@
 # cryptoj.lib
-
-## Purpose
 Java Crypto Library for Bitcoin, Ethereum, Iota and more
 
-The goal of this library is to provide a unified API to create and use paper wallets for different crypto currencies.
+
+## Purpose
+The goal of this Java library is to provide a unified API to create and use paper wallets for different crypto currencies.
 
 This repository also provides a sample application to demonstrate the usage of the provided API. So far the following currencies are supported 
 
@@ -11,7 +11,7 @@ This repository also provides a sample application to demonstrate the usage of t
 * Ethereum
 * Iota
 
-## Warning/Current Status
+## Warning/Current Status
 
 This library and the demo application are currently experimental/educational only. 
 No testing with real funds has taken place.
@@ -57,7 +57,7 @@ Three files have been created
 An HTML output looks as shown  below.
 ![HTML Page](/screenshots/bitcoin_paper_wallet.png)
 
-Using the created seed phrase "expose dwarf coyote broken alert rifle fade novel estate output about repair" may be used to restore the wallet with Electrum Bitcoin wallet.
+Using the created seed phrase "expose dwarf coyote broken alert rifle fade novel estate output about repair" may be used to restore the wallet with [Electrum Bitcoin wallet](https://electrum.org/).
 
 ![Electrum Bitcoin Seed](/screenshots/electrum_bitcoin_seed.png)
 
