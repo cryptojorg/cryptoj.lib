@@ -17,14 +17,12 @@ public abstract class Wallet {
 	public static final String JSON_FILE_EXTENSION = "json";
 
 	private List<String> mnemonicWords = null;
-	private String passPhrase = null;
 	protected Account account = null;
 
 	protected Wallet(List<String> mnemonicWords, String passPhrase, Protocol protocol) {
 		processProtocol(protocol);
 		processMnemonicWords(mnemonicWords, protocol);
 
-		this.passPhrase = passPhrase;
 		account = protocol.createAccount(mnemonicWords, passPhrase, protocol.getNetwork());
 	}
 
@@ -34,7 +32,6 @@ public abstract class Wallet {
 		JSONObject accountJson = walletJson.getJSONObject(JSON_ACCOUNT);
 		Protocol protocol = ProtocolFactory.getInstance(walletJson);
 
-		this.passPhrase = passPhrase;
 		account = protocol.restoreAccount(accountJson, passPhrase);
 	}
 
@@ -57,10 +54,6 @@ public abstract class Wallet {
 
 	public List<String> getMnemonicWords() {
 		return mnemonicWords;
-	}
-
-	public String getSecret() {
-		return getAccount().getSecret();
 	}
 
 	public abstract String getSecretLabel();
@@ -175,13 +168,14 @@ public abstract class Wallet {
 
 		Wallet other = (Wallet)obj;
 
-		if(mnemonicWords != null && !mnemonicWords.equals(other.mnemonicWords)) {
-			return false;
+		// special case mnemonic words: a restored wallet does not have mnemonic words
+		// as a result this check only makes sense if both wallets have non null mnemonic words
+		// TODO decide if wallet should have a flag if it has been freshly created or restored from a file
+		if(mnemonicWords != null && other.mnemonicWords != null) {
+			if(!mnemonicWords.equals(other.mnemonicWords)) {
+				return false;
+			}
 		} 
-
-		if(passPhrase != null && !passPhrase.equals(other.passPhrase)) {
-			return false;
-		}
 
 		return account.equals(other.account);
 	}
@@ -189,9 +183,8 @@ public abstract class Wallet {
 	@Override
 	public int hashCode() {
 		int mHash = mnemonicWords == null ? 0 : Mnemonic.convert(mnemonicWords).hashCode();
-		int pHash = passPhrase == null ? 0 : passPhrase.hashCode();
 		int aHash = account == null ? 0 : account.hashCode();
 
-		return mHash | pHash | aHash;
+		return mHash | aHash;
 	}
 }

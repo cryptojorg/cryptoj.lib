@@ -37,13 +37,13 @@ public class Application {
 	public static final String EXT_HTML = "html";
 	public static final String EXT_PNG = "png";
 
-	@Parameter(names = {SWITCH_TECHNOLOGY, "--technology"}, description = "technology: (default: Bitcoin)")
+	@Parameter(names = {SWITCH_TECHNOLOGY, "--technology"}, description = "technology")
 	private String technology = DEFAULT_TECHNOLOGY.name();
 
-	@Parameter(names = {SWITCH_NETWORK, "--network"}, description = "network: (default: Production)")
+	@Parameter(names = {SWITCH_NETWORK, "--network"}, description = "network")
 	private String network = DEFAULT_NETWORK.name();
 
-	@Parameter(names = {SWITCH_DIRECTORY, "--directory"}, description = "target directory for files (default: user home )")
+	@Parameter(names = {SWITCH_DIRECTORY, "--directory"}, description = "target directory for files")
 	private String targetDirectory = DEFAULT_DIRECTORY;
 
 	@Parameter(names = {SWITCH_MNEMONIC, "--mnemonic"}, description = "mnemonic sentence for the wallet file (default: generate new sentence)")
@@ -61,6 +61,8 @@ public class Application {
 	@Parameter(names = {"-h", "--help"}, help = true)
 	private boolean help;
 
+	private Wallet wallet = null;
+	
 	public static void main(String[] args) throws Exception {
 		Application app = new Application();
 		app.run(args);
@@ -70,7 +72,6 @@ public class Application {
 		processCommandLine(args);
 
 		String pathToDirectory = getDirectory();
-		Wallet wallet = null;
 
 		if(isCreateMode()) {
 			wallet = createWallet();
@@ -84,28 +85,80 @@ public class Application {
 		logWalletInfo(wallet, pathToDirectory);		
 	}
 
-	private void processCommandLine(String [] args) {
+	public void processCommandLine(String [] args) {
 		JCommander cmd = new JCommander(this, args);
 		cmd.setProgramName(COMMAND_NAME);
-
-		if(help) {
+		
+		if(passPhrase == null) {
+			log("Command line error: Pass phrase is a mandatory parameter, see usage below");
+			cmd.usage();
+			System.exit(1);
+		}
+		else if(help) {
 			cmd.usage();
 			System.exit(0);
 		}
 	}
 
-	private Wallet createWallet() {
+	public Wallet createWallet() {
 		Protocol protocol = getProtocol();
 		List<String> mnemonicWords = getMnemonicWords(protocol);
 		
 		return protocol.createWallet(mnemonicWords, passPhrase);
 	}
 	
-	private Wallet restoreWallet(File file) {
+	public Wallet restoreWallet(File file) {
 		JSONObject walletJson = FileUtility.readJsonFile(file);
 		Protocol protocol = ProtocolFactory.getInstance(walletJson);
 		
 		return protocol.restoreWallet(walletJson, passPhrase);
+	}
+
+	public File writeWalletFile(Wallet wallet, String path) {
+		String fileContent = wallet.toString();
+		String fileName = getWalletFileName(wallet, path);
+		return FileUtility.saveToFile(fileContent, fileName);
+	}
+	
+	public Wallet getWallet() {
+		return wallet;
+	}
+
+	public boolean isCreateMode() {
+		return walletFile == null;
+	}
+
+	/**
+	 * Returns the wallet file directory using the following fallback mechanism.
+	 * (1) If a wallet file was provided on the command line, its directory is returned.
+	 * (2) If a directory was provided return that directory.
+	 * (3) Else: return the default directory.
+	 */
+	public String getDirectory() {
+		if(!isCreateMode()) {
+			File file = getWalletFile();
+			String parent = file == null ? null : file.getParent();
+			return parent != null ? parent : ".";
+		}
+		else {
+			return targetDirectory;
+		}
+	}
+	
+	/**
+	 * Returns the wallet file specified on the command line or null if no wallet file to verify was specified.
+	 * @return
+	 */
+	public File getWalletFile() {
+		return walletFile == null ? null : new File(walletFile);
+	}
+
+	public Protocol getProtocol() {
+		return ProtocolFactory.getInstance(Technology.get(technology), Network.get(network));
+	}
+
+	private List<String> getMnemonicWords(Protocol protocol) {
+		return mnemonic != null ? Mnemonic.convert(mnemonic) : protocol.generateMnemonicWords();
 	}
 
 	private void writeFiles(Wallet wallet, String pathToDirectory) {
@@ -117,12 +170,6 @@ public class Application {
 		writeQRCodeFile(wallet, pathToDirectory);
 
 		log(String.format("files successfully written to directory", pathToDirectory));
-	}
-
-	private void writeWalletFile(Wallet wallet, String path) {
-		String fileContent = wallet.toString();
-		String fileName = getWalletFileName(wallet, path);
-		FileUtility.saveToFile(fileContent, fileName);
 	}
 
 	private void writeHtmlFile(Wallet wallet, String path) {
@@ -137,32 +184,12 @@ public class Application {
 		FileUtility.saveToFile(fileContent, fileName);
 	}
 
-	private boolean isCreateMode() {
-		return walletFile == null;
-	}
-	
-	private File getWalletFile() {
-		return new File(walletFile);
-	}
-
-	private Protocol getProtocol() {
-		return ProtocolFactory.getInstance(Technology.get(technology), Network.get(network));
-	}
-
-	private String getDirectory() {
-		return targetDirectory != null ? targetDirectory : DEFAULT_DIRECTORY;
-	}
-
-	private List<String> getMnemonicWords(Protocol protocol) {
-		return mnemonic != null ? Mnemonic.convert(mnemonic) : protocol.generateMnemonicWords();
-	}
-
 	private String getWalletFileName(Wallet wallet, String path) {
 		return getFileName(wallet, path, EXT_JSON);
 	}
 
 	private String getFileName(Wallet wallet, String path, String extension) {
-		return String.format("%s%s%s", path, File.separator, wallet.getBaseName(), extension);
+		return String.format("%s%s%s.%s", path, File.separator, wallet.getBaseName(), extension);
 	}
 
 	private void logWalletInfo(Wallet wallet, String pathToDirectory) {

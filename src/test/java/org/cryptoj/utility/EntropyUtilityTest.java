@@ -7,19 +7,27 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.cryptoj.common.BaseTest;
-import org.cryptoj.utility.AesUtility;
-import org.cryptoj.utility.EntropyUtility;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class EntropyUtilityTest extends BaseTest {
 
-	@Ignore
+
+	/**
+	 * Test expectation that for default number of entropy bits we will find not find collisions
+	 * @throws Exception
+	 */
 	@Test
 	public void testRandomness() throws Exception {
 		Set<String> samples = new HashSet<>();
-		int steps = 10;
+		int steps = 100000;
 
+		String osName = System.getProperty("os.name");
+		
+		if(!osName.toLowerCase().contains("mac")) {
+			log("running on " + osName + ": skipping test as this would take too long");
+			steps = 0;
+	    }
+		
 		for(int i = 0; i < steps; i++) {
 			byte [] entropy = EntropyUtility.generateEntropy();
 			String entropyEncoded = AesUtility.bytesToBase64(entropy);
@@ -32,7 +40,10 @@ public class EntropyUtilityTest extends BaseTest {
 		}
 	}
 
-	@Ignore
+	/**
+	 * Test expectation that for very few (16) entropy bits we will find collisions
+	 * @throws Exception
+	 */
 	@Test
 	public void testRandomness16() throws Exception {
 		log("--- start testRandomness16() ---");
@@ -41,6 +52,12 @@ public class EntropyUtilityTest extends BaseTest {
 		int entropyBits = 16;
 		int steps = 66000;
 		boolean found = false;
+		String osName = System.getProperty("os.name");
+		
+		if(!osName.toLowerCase().contains("mac")) {
+			log("running on " + osName + ": skipping test as this would take too long");
+			steps = 0;
+	    }
 
 		for(int i = 0; i < steps && !found; i++) {
 			byte [] entropy = EntropyUtility.generateEntropy(entropyBits);
@@ -62,12 +79,22 @@ public class EntropyUtilityTest extends BaseTest {
 		log("--- end testRandomness16() ---");
 	}
 
-	@Ignore
+
+	/**
+	 * Test expectation that for many entropy bits (256) we will find not find collisions
+	 * @throws Exception
+	 */
 	@Test
 	public void testRandomness256() throws Exception {
 		Set<String> samples = new HashSet<>();
 		int entropyBits = 256;
 		int steps = 100000;
+		String osName = System.getProperty("os.name");
+		
+		if(!osName.toLowerCase().contains("mac")) {
+			log("running on " + osName + ": skipping test as this would take too long");
+			steps = 0;
+	    }
 
 		for(int i = 0; i < steps; i++) {
 			byte [] entropy = EntropyUtility.generateEntropy(entropyBits);

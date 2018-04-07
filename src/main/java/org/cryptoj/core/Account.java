@@ -222,12 +222,13 @@ public abstract class Account {
 		Account other = (Account)obj;
 
 		return getSecret().equals(other.getSecret()) 
+				&& getPassPhrase().equals(other.getPassPhrase()) 
 				&& getAddress().equals(other.getAddress()) 
 				&& getProtocol().equals(other.getProtocol());
 	}
 
 	@Override
 	public int hashCode() {
-		return getSecret().hashCode() | getAddress().hashCode() | getProtocol().hashCode();
+		return getSecret().hashCode() | getProtocol().hashCode();
 	}
 }

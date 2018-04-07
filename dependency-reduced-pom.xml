@@ -41,7 +41,7 @@
               </filters>
               <transformers>
                 <transformer>
-                  <mainClass>org.matthiaszimmermann.crypto.Application</mainClass>
+                  <mainClass>org.cryptoj.Application</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -60,7 +60,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.12</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -71,12 +71,17 @@
     </dependency>
   </dependencies>
   <properties>
+    <slf4j.version>1.7.25</slf4j.version>
+    <junit.version>4.12</junit.version>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <zxing.lib.version>3.3.2</zxing.lib.version>
+    <bitcoin.lib.version>0.14.7</bitcoin.lib.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <iota.lib.version>0.9.11-SNAPSHOT</iota.lib.version>
-    <bitcoin.lib.version>0.14.4</bitcoin.lib.version>
+    <jcommander.lib.version>1.72</jcommander.lib.version>
     <ethereum.lib.version>3.3.1</ethereum.lib.version>
     <maven.compiler.source>1.8</maven.compiler.source>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <jackson.json.version>2.9.5</jackson.json.version>
   </properties>
 </project>
 

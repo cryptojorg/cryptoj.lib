@@ -65,7 +65,7 @@ public class WalletPageUtility extends HtmlUtility {
 		Protocol protocol = wallet.getProtocol();
 		Technology technology = protocol.getTechnology();
 		String address = wallet.getAccount().getAddress();
-		String secret = wallet.getSecret();
+		String secret = wallet.getAccount().getSecret();
 		String secretLabel = wallet.getSecretLabel();
 		String mnemonic = Mnemonic.convert(wallet.getMnemonicWords());
 		String walletFileContent = wallet.toString();

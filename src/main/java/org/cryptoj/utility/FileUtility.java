@@ -72,47 +72,51 @@ public class FileUtility {
 		return sb.toString();
 	}
 
-	public static void saveToFile(String buf, String fileName) {
+	public static File saveToFile(String buf, String fileName) {
 		boolean overwrite = false;
-		saveToFile(buf, fileName, overwrite);
+		return saveToFile(buf, fileName, overwrite);
 	}
 	
-	public static void saveToFile(byte [] buf, String fileName) {
+	public static File saveToFile(byte [] buf, String fileName) {
 		boolean overwrite = false;
-		saveToFile(buf, fileName, overwrite);
+		return saveToFile(buf, fileName, overwrite);
 	}
 	
-	public static void saveToFile(String buf, String fileName, boolean overwrite) {
-		verifyFileExists(fileName, overwrite);
+	public static File saveToFile(String buf, String fileName, boolean overwrite) {
+		File file = new File(fileName);
+		verifyFileExists(file, overwrite);
 		
-		try(PrintWriter out = new PrintWriter(fileName)) {
+		try(PrintWriter out = new PrintWriter(file)) {
 			out.println(buf);
 		}
 		catch(Exception e) {
 			throw new RuntimeException("Failed to write content to file " + fileName, e);
 		}
+		
+		return file;
 	}
 
-	public static void saveToFile(byte [] buf, String fileName, boolean overwrite) {
-		verifyFileExists(fileName, overwrite);
+	public static File saveToFile(byte [] buf, String fileName, boolean overwrite) {
+		File file = new File(fileName);
+		verifyFileExists(file, overwrite);
 		
-		try (FileOutputStream fos = new FileOutputStream(fileName)) {
+		try (FileOutputStream fos = new FileOutputStream(file)) {
 			fos.write(buf);
 		}
 		catch(Exception e) {
-			throw new RuntimeException("Failed to write content to file " + fileName, e);
+			throw new RuntimeException("Failed to write content to file " + file, e);
 		}
+		
+		return file;
 	}
 	
-	private static void verifyFileExists(String fileName, boolean overwrite) {
+	private static void verifyFileExists(File file, boolean overwrite) {
 		if(overwrite) {
 			return;
 		}
 		
-		File file = new File(fileName);
-		
 		if(file.exists()) {
-			throw new RuntimeException(String.format("File %s already exits. Not writing anythiong", fileName));
+			throw new RuntimeException(String.format("File %s already exits. Not writing anythiong", file));
 		}
 	}
 
