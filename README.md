@@ -31,7 +31,7 @@ The result of the Maven build is an executable JAR file.
 Use the following command to create a paper wallet. For the example we will create a Bitcoin wallet.
 
 ```
-java -jar target/cryptoj-lib-0.1.0-SNAPSHOT.jar -d . -p "test pass phrase" -t bitcoin```
+java -jar target/cryptoj-lib-0.1.0-SNAPSHOT.jar -d . -p "test pass phrase" -t bitcoin
 ```
 
 This will lead to an output similar to the one below
@@ -55,13 +55,13 @@ Three files have been created
 * The corresponding address as QR code (1EQVGkJN6V8QdZ3ANsnXCHmhZRnnxL7Kx1.png)
 
 An HTML output looks as shown  below.
-![HTML Page](/screenshots/bitcoin_paper_wallet_html.png)
+![HTML Page](/screenshots/bitcoin_paper_wallet.png)
 
 Using the created seed phrase "expose dwarf coyote broken alert rifle fade novel estate output about repair" may be used to restore the wallet with Electrum Bitcoin wallet.
 
-![HTML Page](/screenshots/electrum_bitcoin_seed.png)
+![Electrum Bitcoin Seed](/screenshots/electrum_bitcoin_seed.png)
 
 Using the Electrum wallet this leads to the same receive address as provided by the command line tool.
 
-![HTML Page](/screenshots/electrum_receive_address.png)
+![Electrum Receive Address](/screenshots/electrum_receive_address.png)
 
