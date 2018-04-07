@@ -1,4 +1,6 @@
 # cryptoj.lib
+
+[![Join the chat at https://gitter.im/cryptojorg/cryptoj.lib](https://badges.gitter.im/cryptojorg/cryptoj.lib.svg)](https://gitter.im/cryptojorg/cryptoj.lib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Java Crypto Library for Bitcoin, Ethereum, Iota and more
 
 
