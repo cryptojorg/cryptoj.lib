@@ -1,11 +1,12 @@
 package org.cryptoj.ethereum;
 
-import static org.junit.Assert.assertEquals;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.cryptoj.common.BaseTest;
 import org.cryptoj.core.Bip39TestVectors;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.web3j.crypto.MnemonicUtils;
 
 public class MnemonicUtilsTest extends BaseTest {
@@ -14,7 +15,7 @@ public class MnemonicUtilsTest extends BaseTest {
 	public static final byte [] ENTROPY_BYTES_16 =  {108, 59, 35, 9, 90, 110, 57, -31, -118, 77, 104, 118, -89, 58, -21, 121};
 	public static final String ENTROPY_WORDS_16 = "history suit seat regular toe valid circle public issue degree river vendor";
 	
-	@Ignore("Test fails as web3j 3.3.1 fails to read its own mnemonic word list file: en-mnemonic-word-list.txt")
+	@Disabled("Test fails as web3j 3.3.1 fails to read its own mnemonic word list file: en-mnemonic-word-list.txt")
 	@Test
 	public void testMnemonicFixed16() throws Exception {
 		String mnemonicSentence = MnemonicUtils.generateMnemonic(ENTROPY_BYTES_16);
@@ -22,7 +23,7 @@ public class MnemonicUtilsTest extends BaseTest {
 		assertEquals(ENTROPY_WORDS_16, mnemonicSentence);
 	}
 
-	@Ignore("Test fails as web3j 3.3.1 fails to read its own mnemonic word list file: en-mnemonic-word-list.txt")
+	@Disabled("Test fails as web3j 3.3.1 fails to read its own mnemonic word list file: en-mnemonic-word-list.txt")
 	@Test
 	public void testBip39Vectors() throws Exception {
 		log("--- start testBip39Vectors() ---");
@@ -47,7 +48,7 @@ public class MnemonicUtilsTest extends BaseTest {
 			}
 		} 
 		
-		assertEquals("some entropy->mnemonic cases failed", n, okMnemonic);
+		assertEquals(n, okMnemonic, "some entropy->mnemonic cases failed");
 		
 		log("--- start testBip39Vectors() ---");
 	}

@@ -1,8 +1,8 @@
 package org.cryptoj;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
@@ -12,7 +12,7 @@ import org.cryptoj.core.Protocol;
 import org.cryptoj.core.ProtocolFactory;
 import org.cryptoj.core.Technology;
 import org.cryptoj.core.Wallet;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class WalletCreateRestoreTest extends BaseTest {
 

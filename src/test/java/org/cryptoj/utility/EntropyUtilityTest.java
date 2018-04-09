@@ -1,13 +1,14 @@
 package org.cryptoj.utility;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import org.cryptoj.common.BaseTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EntropyUtilityTest extends BaseTest {
 
@@ -32,9 +33,8 @@ public class EntropyUtilityTest extends BaseTest {
 			byte [] entropy = EntropyUtility.generateEntropy();
 			String entropyEncoded = AesUtility.bytesToBase64(entropy);
 
-			assertEquals("Unexpected entropy size", EntropyUtility.ENTROPY_BITS_DEFAULT/8, entropy.length);
-			assertTrue(String.format("Identical entropy '%s' produced (step %d/%s)", entropyEncoded, i, steps), 
-					!samples.contains(entropyEncoded));
+			assertEquals(EntropyUtility.ENTROPY_BITS_DEFAULT/8, entropy.length, "Unexpected entropy size");
+			assertTrue(!samples.contains(entropyEncoded), String.format("Identical entropy '%s' produced (step %d/%s)", entropyEncoded, i, steps));
 
 			samples.add(entropyEncoded);
 		}
@@ -63,7 +63,7 @@ public class EntropyUtilityTest extends BaseTest {
 			byte [] entropy = EntropyUtility.generateEntropy(entropyBits);
 			String entropyEncoded = AesUtility.bytesToBase64(entropy);
 
-			assertEquals("Unexpected entropy size", entropyBits/8, entropy.length);
+			assertEquals(entropyBits/8, entropy.length, "Unexpected entropy size");
 
 			if(samples.contains(entropyEncoded)) {
 				log(String.format("Identical entropy '%s' produced (step %d/%s)", entropyEncoded, i, steps));
@@ -75,7 +75,7 @@ public class EntropyUtilityTest extends BaseTest {
 		}
 		
 		if(steps > 0) {
-			assertTrue("Failed to create twice same entropy", found);
+			assertTrue(found, "Failed to create twice same entropy");
 		}
 		
 		log("--- end testRandomness16() ---");
@@ -102,26 +102,28 @@ public class EntropyUtilityTest extends BaseTest {
 			byte [] entropy = EntropyUtility.generateEntropy(entropyBits);
 			String entropyEncoded = AesUtility.bytesToBase64(entropy);
 
-			assertEquals("Unexpected entropy size", entropyBits/8, entropy.length);
-			assertTrue(String.format("Identical entropy '%s' produced (step %d/%s)", entropyEncoded, i, steps), 
-					!samples.contains(entropyEncoded));
+			assertEquals(entropyBits/8, entropy.length, "Unexpected entropy size");
+			assertTrue(!samples.contains(entropyEncoded), String.format("Identical entropy '%s' produced (step %d/%s)", entropyEncoded, i, steps));
 
 			samples.add(entropyEncoded);
 		}
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testParameterNegative() throws Exception {		
-		EntropyUtility.generateEntropy(-1);
+	@Test
+	public void testParameterNegative() throws Exception {
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> { EntropyUtility.generateEntropy(-1); } );
+		log("testParameterNegative(): " + e.getMessage());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testParameterZero() throws Exception {		
-		EntropyUtility.generateEntropy(0);
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> { EntropyUtility.generateEntropy(0); } );
+		log("testParameterZero(): " + e.getMessage());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testParameterNotMultipleOf8() throws Exception {		
-		EntropyUtility.generateEntropy(7);
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> { EntropyUtility.generateEntropy(7); } );
+		log("testParameterNotMultipleOf8(): " + e.getMessage());
 	}
 }

@@ -63,13 +63,13 @@ public class Bitcoin extends Protocol {
 
 	@Override
 	public Wallet restoreWallet(JSONObject walletJson, String passPhrase) {
-        // verifier.checkPreconditions(json) // and write tests for it
+        // TODO verifier.checkPreconditions(json) // and write tests for it
 
 		try {
 			return new BitcoinWallet(walletJson, passPhrase);
 		}
-		catch (Exception e) {
-			throw new RuntimeException("Failed to restore Bitcoin wallet", e);
+		catch (JSONException e) {
+			throw new IllegalArgumentException("Failed to restore Bitcoin wallet", e);
 		} 	
 	}
 
@@ -85,7 +85,7 @@ public class Bitcoin extends Protocol {
 			return new BitcoinAccount(accountJson, passPhrase, getNetwork());
 		} 
 		catch (JSONException e) {
-			throw new RuntimeException("Failed to create Bitcoin account from json object", e);
+			throw new IllegalArgumentException("Failed to create Bitcoin account from json object", e);
 		}
 	}
 

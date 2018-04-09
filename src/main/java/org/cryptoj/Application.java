@@ -13,7 +13,6 @@ import org.cryptoj.core.Wallet;
 import org.cryptoj.utility.FileUtility;
 import org.cryptoj.utility.QrCodeUtility;
 import org.cryptoj.utility.WalletPageUtility;
-
 import org.json.JSONObject;
 
 import com.beust.jcommander.JCommander;
@@ -32,7 +31,7 @@ public class Application {
 	public static final Technology DEFAULT_TECHNOLOGY = Technology.Bitcoin;
 	public static final Network DEFAULT_NETWORK = Network.Production;
 	public static final String DEFAULT_DIRECTORY = System.getProperty("user.home");
-	
+
 	public static final String EXT_JSON = "json";
 	public static final String EXT_HTML = "html";
 	public static final String EXT_PNG = "png";
@@ -62,7 +61,7 @@ public class Application {
 	private boolean help;
 
 	private Wallet wallet = null;
-	
+
 	public static void main(String[] args) throws Exception {
 		Application app = new Application();
 		app.run(args);
@@ -86,9 +85,10 @@ public class Application {
 	}
 
 	public void processCommandLine(String [] args) {
-		JCommander cmd = new JCommander(this, args);
+		JCommander cmd = new JCommander(this);
+		cmd.parse(args);
 		cmd.setProgramName(COMMAND_NAME);
-		
+
 		if(passPhrase == null) {
 			log("Command line error: Pass phrase is a mandatory parameter, see usage below");
 			cmd.usage();
@@ -103,15 +103,21 @@ public class Application {
 	public Wallet createWallet() {
 		Protocol protocol = getProtocol();
 		List<String> mnemonicWords = getMnemonicWords(protocol);
-		
+
 		return protocol.createWallet(mnemonicWords, passPhrase);
 	}
-	
+
 	public Wallet restoreWallet(File file) {
-		JSONObject walletJson = FileUtility.readJsonFile(file);
-		Protocol protocol = ProtocolFactory.getInstance(walletJson);
+		try {
+			JSONObject walletJson = FileUtility.readJsonFile(file);
+			Protocol protocol = ProtocolFactory.getInstance(walletJson);
+			wallet = protocol.restoreWallet(walletJson, passPhrase);
+		}
+		catch(Exception e) {
+			throw new VerifyWalletFileException(e);
+		}
 		
-		return protocol.restoreWallet(walletJson, passPhrase);
+		return wallet;
 	}
 
 	public File writeWalletFile(Wallet wallet, String path) {
@@ -119,7 +125,7 @@ public class Application {
 		String fileName = getWalletFileName(wallet, path);
 		return FileUtility.saveToFile(fileContent, fileName);
 	}
-	
+
 	public Wallet getWallet() {
 		return wallet;
 	}
@@ -144,7 +150,7 @@ public class Application {
 			return targetDirectory;
 		}
 	}
-	
+
 	/**
 	 * Returns the wallet file specified on the command line or null if no wallet file to verify was specified.
 	 * @return

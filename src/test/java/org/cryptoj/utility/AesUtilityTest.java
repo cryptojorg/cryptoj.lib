@@ -1,11 +1,11 @@
 package org.cryptoj.utility;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
@@ -13,7 +13,7 @@ import javax.crypto.SecretKey;
 
 import org.cryptoj.common.BaseTest;
 import org.cryptoj.utility.AesUtility;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AesUtilityTest extends BaseTest {
 	

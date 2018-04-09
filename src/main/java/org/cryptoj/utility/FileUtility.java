@@ -22,14 +22,14 @@ public class FileUtility {
 		String jsonString = readTextFile(file);
 
 		if(jsonString.isEmpty()) {
-			throw new RuntimeException("Empty json file");
+			throw new JsonFileException("Empty json file");
 		}
 
 		try {
 			return new JSONObject(jsonString);
 		}
 		catch (JSONException e) {
-			throw new RuntimeException("Failed to convert json file to json object", e);
+			throw new JsonFileException("Conversion to json object failed", e);
 		}
 	}
 
@@ -38,20 +38,20 @@ public class FileUtility {
 			return readTextFile(new File(fileName));
 		}
 		catch (Exception e) {
-			throw new RuntimeException("Failed to read content from text file " + fileName, e);
+			throw new TextFileException("Failed to read content from text file " + fileName, e);
 		}
 	}
 
 	public static String readTextFile(File file) {
-		
+
 		if(!file.exists()) {
-			throw new RuntimeException("File to read does not exist " + file.getAbsolutePath());
+			throw new TextFileException("File to read does not exist " + file.getAbsolutePath());
 		}
-		
+
 		if(file.isDirectory()) {
-			throw new RuntimeException("Provided path is directory, not file " + file.getAbsolutePath());
+			throw new TextFileException("Provided path is directory, not file " + file.getAbsolutePath());
 		}
-		
+
 		StringBuilder sb = new StringBuilder();
 
 		try {
@@ -66,7 +66,7 @@ public class FileUtility {
 			in.close();
 		}
 		catch (Exception e) {
-			throw new RuntimeException("Failed to read content from file " + file.getAbsolutePath(), e);
+			throw new TextFileException("Failed to read content from file " + file.getAbsolutePath(), e);
 		}
 
 		return sb.toString();
@@ -76,47 +76,49 @@ public class FileUtility {
 		boolean overwrite = false;
 		return saveToFile(buf, fileName, overwrite);
 	}
-	
+
 	public static File saveToFile(byte [] buf, String fileName) {
 		boolean overwrite = false;
 		return saveToFile(buf, fileName, overwrite);
 	}
-	
+
 	public static File saveToFile(String buf, String fileName, boolean overwrite) {
 		File file = new File(fileName);
 		verifyFileExists(file, overwrite);
-		
+
 		try(PrintWriter out = new PrintWriter(file)) {
-			out.println(buf);
+			if(buf != null) {
+				out.println(buf);
+			}
 		}
 		catch(Exception e) {
-			throw new RuntimeException("Failed to write content to file " + fileName, e);
+			throw new TextFileException("Failed to write content to file " + fileName, e);
 		}
-		
+
 		return file;
 	}
 
 	public static File saveToFile(byte [] buf, String fileName, boolean overwrite) {
 		File file = new File(fileName);
 		verifyFileExists(file, overwrite);
-		
+
 		try (FileOutputStream fos = new FileOutputStream(file)) {
 			fos.write(buf);
 		}
 		catch(Exception e) {
-			throw new RuntimeException("Failed to write content to file " + file, e);
+			throw new FileException("Failed to write content to file " + file, e);
 		}
-		
+
 		return file;
 	}
-	
+
 	private static void verifyFileExists(File file, boolean overwrite) {
 		if(overwrite) {
 			return;
 		}
-		
+
 		if(file.exists()) {
-			throw new RuntimeException(String.format("File %s already exits. Not writing anythiong", file));
+			throw new FileException(String.format("File %s already exits. Not writing anythiong", file));
 		}
 	}
 
@@ -137,7 +139,7 @@ public class FileUtility {
 			return lines;
 		}
 		catch (Exception e) {
-			throw new RuntimeException("Failed to read text from resource " + fileName, e);
+			throw new TextFileException("Failed to read text from resource " + fileName, e);
 		}
 	}
 
@@ -149,7 +151,7 @@ public class FileUtility {
 			return buf;
 		}
 		catch (Exception e) {
-			throw new RuntimeException("Failed to read content from resource " + fileName, e);
+			throw new FileException("Failed to read content from resource " + fileName, e);
 		}
 	}
 
@@ -165,5 +167,4 @@ public class FileUtility {
 			return os.toByteArray();
 		}
 	}
-
 }

@@ -1,16 +1,16 @@
 package org.cryptoj.core;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
 import org.cryptoj.common.BaseTest;
 import org.cryptoj.core.Mnemonic;
 import org.cryptoj.utility.EntropyUtility;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MnemonicTest extends BaseTest {
 	public static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
@@ -55,8 +55,8 @@ public class MnemonicTest extends BaseTest {
 			}
 		} 
 		
-		assertEquals("some entropy->mnemonic cases failed", n, okMnemonic);
-		assertEquals("some mnemonic->entropy cases failed", n, okEntropy);
+		assertEquals(n, okMnemonic, "some entropy->mnemonic cases failed");
+		assertEquals(n, okEntropy, "some mnemonic->entropy cases failed");
 		
 		log("--- start testBip39Vectors() ---");
 	}

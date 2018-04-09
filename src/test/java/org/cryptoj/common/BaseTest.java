@@ -27,4 +27,10 @@ public class BaseTest {
 			System.out.println(message);
 		}
 	}
+	
+	protected static void logStatic(String message, boolean silent) {
+		if(!silent) {
+			System.out.println(message);
+		}
+	}
 }

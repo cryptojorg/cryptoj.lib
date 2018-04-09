@@ -1,7 +1,7 @@
 package org.cryptoj.bitcoin;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,7 +17,7 @@ import org.cryptoj.core.ProtocolFactory;
 import org.cryptoj.core.Technology;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BitcoinAccountTest extends BaseTest {
 	
@@ -40,8 +40,8 @@ public class BitcoinAccountTest extends BaseTest {
 		assertNotNull(secret);
 		assertNotNull(address);
 
-		assertEquals("Secret mismatch", SECRET_FIXED, secret);
-		assertEquals("Address mismatch", ADDRESS_FIXED, address);
+		assertEquals(SECRET_FIXED, secret, "Secret mismatch");
+		assertEquals(ADDRESS_FIXED, address, "Address mismatch");
 		
 		assertEquals(secret, account.getSecret());
 		assertEquals(address, account.getAddress());
