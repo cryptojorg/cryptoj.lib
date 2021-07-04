@@ -1,4 +1,4 @@
-package org.cryptoj.bitcoin;
+package org.cryptoj.coin.bitcoin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +21,11 @@ import org.json.JSONObject;
  */
 public class BitcoinAccount extends Account {
 
+	public static final String WALLET_ELECTRUM = "Electrum";
+	public static final String [] SUPPORTED_WALLETS = { WALLET_ELECTRUM };
+	
+	public static final String WALLET_DEFAULT = WALLET_ELECTRUM;
+	
 	private List<Chain> chains = null;
 
 	/**
@@ -29,29 +34,65 @@ public class BitcoinAccount extends Account {
 	 * @param List<String> mnemonicWords the BIP39 seed word list for this HD account
 	 * @param NetworkParameters params
 	 */
-	public BitcoinAccount(List<String> mnemonicWords, String passPhrase, Network network) {
-		super(mnemonicWords, passPhrase, new Bitcoin(network));
+	public BitcoinAccount(List<String> mnemonicWords, String passPhrase, Network network, String targetWallet) {
+		super(mnemonicWords, passPhrase, new Bitcoin(network), targetWallet);
 
 		chains = getChains(mnemonicWords, getNetwork());
 	}
 
-	public BitcoinAccount(JSONObject accountJson, String passPhrase, Network network) throws JSONException {
-		super(accountJson, passPhrase, new Bitcoin(network));
+	public BitcoinAccount(JSONObject accountJson, String passPhrase, Network network, String targetWallet) throws JSONException {
+		super(accountJson, passPhrase, new Bitcoin(network), targetWallet);
 		
 		List<String> mnemonicWords = new ArrayList<String>(Arrays.asList(getSecret().split(" ")));
 		chains = getChains(mnemonicWords, getNetwork());
 	}
 
 	@Override
-	public String deriveSecret(List<String> menmonicWords, String passPhrase) {
+	public boolean isSupported(String targetWallet) {
+		if(targetWallet == null) {
+			return false;
+		}
+		
+		for(String supportedWallet: SUPPORTED_WALLETS) {
+			if(targetWallet.equals(supportedWallet)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+
+	@Override
+	public String getWalletInfo() {
+		
+		if(WALLET_ELECTRUM.equals(getWallet())) {
+			return getElectrumInfo();
+		}
+		
+		return "";
+	}
+	
+
+	@Override
+	public String deriveSecret(List<String> menmonicWords) {
 		return String.join(" ", menmonicWords);
 	}
 
+	
+	/**
+	 * Use the settings below for electrum address generation.
+	 * <ul>
+	 *   <li>BIP39 seed</li>
+	 *   <li>p2pkh Address generation (legacy)</li>
+	 *   <li>BIP44 path "m/44'/0'/0'"
+	 * </ul>
+	 */
 	@Override
-	public String deriveAddress(String secret, Network network) {
+	public String deriveAddress(String secret) {
 		List<String> mnemonicWords = new ArrayList<String>(Arrays.asList(secret.split(" ")));
 		DeterministicKey dk = getDeterministicKey(mnemonicWords);
-		Chain receiveChain = new Chain(dk, true, network);
+		Chain receiveChain = new Chain(dk, true, getNetwork());
 		Address address = receiveChain.getAddressAt(0);
 		
 		return address.getAddressString();
@@ -97,4 +138,22 @@ public class BitcoinAccount extends Account {
 		}
 		return chainsArray;
 	}
+
+	@Override
+	public String deriveAddress(String secret, int[] path) {
+		return "WARNING not implemented yet";
+	}
+	
+	private String getElectrumInfo() {
+		return "1. Start with 'Create New Wallet' in Electrum.<br>"
+				+ "2. Choose any new wallet name.<br>"
+				+ "3. Select 'Standard Wallet'.<br>"
+				+ "4. Proceed with 'I already have a seed' and check 'BIP39 seed'<br>."
+				+ "5. Under Options check 'BIP39 seed'<br>."
+				+ "6. Enter the mnemonics into the big field.<br>"
+				+ "7. Choose 'legacy (p2pkh)' for the address type and leave the path field unchanged at m/44'/0'/0'.<br>"
+				+ "8. Enter the pass phrase in the password fields.<br>"
+				+ "9. Done.";
+	}
+	
 }

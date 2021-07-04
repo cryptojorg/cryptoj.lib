@@ -1,4 +1,4 @@
-package org.cryptoj.ethereum;
+package org.cryptoj.utility;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.web3j.crypto.MnemonicUtils;
 
-public class MnemonicUtilsTest extends BaseTest {
+public class Web3MnemonicUtilsTest extends BaseTest {
 	public static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 	
 	public static final byte [] ENTROPY_BYTES_16 =  {108, 59, 35, 9, 90, 110, 57, -31, -118, 77, 104, 118, -89, 58, -21, 121};

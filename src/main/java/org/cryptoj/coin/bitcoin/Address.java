@@ -1,7 +1,9 @@
-package org.cryptoj.bitcoin;
+package org.cryptoj.coin.bitcoin;
 
 import java.math.BigInteger;
 
+import org.bitcoinj.core.LegacyAddress;
+import org.bitcoinj.core.SegwitAddress;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Utils;
@@ -18,6 +20,14 @@ import org.json.JSONObject;
  *
  */
 public class Address {
+	
+	public static final int TYPE_LEGACY = 0;
+	public static final int TYPE_SEGWIT = 1;
+	
+	// controls if getAddress returns legacy or segwit address
+	// with legacy the addresses produced are consistent with the electrum wallet
+	// unfortunately this is not the case for segwit native
+	public static final int TYPE = TYPE_LEGACY;
 
     private int childNum;
     private String strPath = null;
@@ -46,7 +56,6 @@ public class Address {
         DeterministicKey dk = HDKeyDerivation.deriveChildKey(cKey, new ChildNumber(childNum, false));
         // compressed WIF private key format
         if(dk.hasPrivKey()) {
-//            byte[] prepended0Byte = ArrayUtils.addAll(new byte[1], dk.getPrivKeyBytes());
         	byte[] getPrivKeyBytes = dk.getPrivKeyBytes();
         	byte[] prepended0Byte = new byte[1 + getPrivKeyBytes.length];
         	prepended0Byte[0] = 0;
@@ -94,7 +103,7 @@ public class Address {
      *
      */
     public String getAddressString() {
-        return ecKey.toAddress(params).toString();
+		return getAddress().toString();    	
     }
 
     /**
@@ -121,7 +130,11 @@ public class Address {
      *
      */
     public org.bitcoinj.core.Address getAddress() {
-        return ecKey.toAddress(params);
+    	if(TYPE == TYPE_LEGACY) {
+        	return LegacyAddress.fromKey(params, ecKey);    		
+    	}
+    	
+		return SegwitAddress.fromKey(params, ecKey);    	
     }
 
     /**

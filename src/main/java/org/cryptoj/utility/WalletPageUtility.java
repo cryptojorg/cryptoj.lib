@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 import org.cryptoj.core.Mnemonic;
 import org.cryptoj.core.Network;
 import org.cryptoj.core.Protocol;
-import org.cryptoj.core.Technology;
+import org.cryptoj.core.ProtocolEnum;
 import org.cryptoj.core.Wallet;
 
 public class WalletPageUtility extends HtmlUtility {
@@ -15,7 +15,7 @@ public class WalletPageUtility extends HtmlUtility {
 	public static final String UTC_DATE_TIME_PATTERN = "'UTC 'yyyy-MM-dd' 'HH:mm:ss.nVV";
 
 	// TODO verify version with the one in the pom.xml
-	public static final String VERSION = "0.1.0-SNAPSHOT";
+	public static final String VERSION = "0.2.0-SNAPSHOT";
 	public static final String REPOSITORY = "https://github.com/matthiaszimmermann/TODO";
 
 	public static final String TITLE = "%s Paper Wallet (%s)";
@@ -63,16 +63,16 @@ public class WalletPageUtility extends HtmlUtility {
 
 	public static String createHtml(Wallet wallet) {
 		Protocol protocol = wallet.getProtocol();
-		Technology technology = protocol.getTechnology();
+		ProtocolEnum technology = protocol.getProtocolEnum();
 		String address = wallet.getAccount().getAddress();
-		String secret = wallet.getAccount().getSecret();
-		String secretLabel = wallet.getSecretLabel();
+		String walletApp = wallet.getAccount().getWallet();
+		String walletInfo = wallet.getAccount().getWalletInfo();
 		String mnemonic = Mnemonic.convert(wallet.getMnemonicWords());
 		String walletFileContent = wallet.toString();
 
 		byte [] logo = FileUtility.getResourceAsBytes(getLogo(technology));
 		byte [] addressQrCode = QrCodeUtility.contentToPngBytes(address, 256);
-		byte [] secretQrCode = QrCodeUtility.contentToPngBytes(secret, 256);
+		byte [] mnemonicQrCode = QrCodeUtility.contentToPngBytes(mnemonic, 256);
 		byte [] walletQrCode = QrCodeUtility.contentToPngBytes(walletFileContent, 400);
 
 		StringBuffer html = new StringBuffer();
@@ -113,10 +113,10 @@ public class WalletPageUtility extends HtmlUtility {
 		// add 2nd row
 		HtmlUtility.addOpenDiv(html, CSS_CLEARFIX);
 
-		// qr code for secret (private key/seed/mnemonic)		
+		// qr code for mnemonic		
 		HtmlUtility.addOpenDiv(html, CSS_COLUMN);
-		HtmlUtility.addParagraph(html, "QR Code " + secretLabel, CSS_CAPTION);
-		HtmlUtility.addEncodedImage(html, secretQrCode, 200, CSS_IMG_SECRET);
+		HtmlUtility.addParagraph(html, "QR Code mnemonic", CSS_CAPTION);
+		HtmlUtility.addEncodedImage(html, mnemonicQrCode, 200, CSS_IMG_SECRET);
 		HtmlUtility.addCloseDiv(html);
 
 		HtmlUtility.addOpenDiv(html, CSS_FILL);
@@ -127,20 +127,22 @@ public class WalletPageUtility extends HtmlUtility {
 		HtmlUtility.addContent(html, address);
 		HtmlUtility.addCloseDiv(html);
 
-		// secret
-		HtmlUtility.addParagraph(html, secretLabel, CSS_CAPTION);
+		// mnemonic
+		HtmlUtility.addParagraph(html, "Mnemonic", CSS_CAPTION);
 		HtmlUtility.addOpenDiv(html, CSS_CONTENT);
-		HtmlUtility.addContent(html, secret);
+		HtmlUtility.addContent(html, mnemonic);
 		HtmlUtility.addCloseDiv(html);
 
-		// mnemonic (only if different from secret
-		if(!secret.equals(mnemonic)) {
-			HtmlUtility.addParagraph(html, "Mnemonic", CSS_CAPTION);
-			HtmlUtility.addOpenDiv(html, CSS_CONTENT);
-			HtmlUtility.addContent(html, mnemonic);
-			HtmlUtility.addCloseDiv(html);
-		}
+		HtmlUtility.addParagraph(html, "Pass Phrase", CSS_CAPTION);
+		HtmlUtility.addOpenDiv(html, CSS_CONTENT);
+		HtmlUtility.addContent(html, wallet.getPassPhrase());
+		HtmlUtility.addCloseDiv(html);
 
+		HtmlUtility.addParagraph(html, walletApp + " Wallet Support", CSS_CAPTION);
+		HtmlUtility.addOpenDiv(html, CSS_CONTENT);
+		HtmlUtility.addContent(html, walletInfo);
+		HtmlUtility.addCloseDiv(html);
+		
 		HtmlUtility.addCloseDiv(html);
 		HtmlUtility.addCloseDiv(html);
 
@@ -155,11 +157,6 @@ public class WalletPageUtility extends HtmlUtility {
 
 		// address, pass phrase, wallet file, file name
 		HtmlUtility.addOpenDiv(html, CSS_FILL);
-
-		HtmlUtility.addParagraph(html, "Pass Phrase", CSS_CAPTION);
-		HtmlUtility.addOpenDiv(html, CSS_CONTENT);
-		HtmlUtility.addContent(html, wallet.getPassPhrase());
-		HtmlUtility.addCloseDiv(html);
 
 		// wallet file content
 		HtmlUtility.addParagraph(html, "File Content", CSS_CAPTION);
@@ -200,12 +197,12 @@ public class WalletPageUtility extends HtmlUtility {
 		return now.format(format);
 	}
 
-	private static String getLogo(Technology technology) {
+	private static String getLogo(ProtocolEnum technology) {
 		return String.format(LOGO, technology.name().toLowerCase());
 	}
 
 	private static String getTitle(Protocol protocol) {
-		Technology technology = protocol.getTechnology();
+		ProtocolEnum technology = protocol.getProtocolEnum();
 		Network network = protocol.getNetwork();
 		return String.format(TITLE, technology, network);
 	}

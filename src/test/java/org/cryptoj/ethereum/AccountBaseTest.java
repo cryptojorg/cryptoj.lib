@@ -7,53 +7,43 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.IOException;
 import java.util.List;
 
+import org.cryptoj.coin.ethereum.Ethereum;
+import org.cryptoj.coin.ethereum.EthereumAccount;
 import org.cryptoj.common.BaseTest;
 import org.cryptoj.core.Account;
 import org.cryptoj.core.Mnemonic;
 import org.cryptoj.core.Network;
 import org.cryptoj.core.Protocol;
+import org.cryptoj.core.ProtocolEnum;
 import org.cryptoj.core.ProtocolFactory;
-import org.cryptoj.core.Technology;
-import org.cryptoj.ethereum.Ethereum;
-import org.cryptoj.ethereum.EthereumAccount;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
-public class EthereumAccountTest extends BaseTest {
+public class AccountBaseTest extends BaseTest {
 	
-	public static final String MNEMONIC_WORDS_FIXED = "history suit seat regular toe valid circle public issue degree river vendor";
-	public static final String SECRET_FIXED = "b0507b391821757ffc8b3cd7ee8dd1b96f7cb05f7fcce2fb650ce1804159f7b0";
-	public static final String ADDRESS_FIXED = "0x7612ba8356851158ca0d21b23a3322dbf81c2938";
-	public static final String PASS_PHRASE = "test_pass_phrase";
-
-
-	@Test
-	public void testCreate() throws Exception {
-		Network network = Network.Production;
-		Protocol protocol = ProtocolFactory.getInstance(Technology.Ethereum, network);
-		List<String> mnemonicWords = Mnemonic.convert(MNEMONIC_WORDS_FIXED);
-		
-		Account account = protocol.createAccount(mnemonicWords, PASS_PHRASE, network);
-		log("" + account);
-	}
+	public static final String MNEMONIC_WORDS_FIXED = "expose dwarf coyote broken alert rifle fade novel estate output about repair";
+	public static final String ADDRESS_FIXED = "0xF2E12BCFE9CF398b24492Df9fc02Af3397ED719f";
+	public static final String PASS_PHRASE = "test pass phrase";
+	public static final String SECRET_FIXED = MNEMONIC_WORDS_FIXED + "#" + PASS_PHRASE;
 	
 	@Test
 	public void verifyMatchingAddress() throws IOException, JSONException {
-		Network network = Network.Production;
-		Protocol protocol = ProtocolFactory.getInstance(Technology.Ethereum, network);
 		List<String> mnemonicWords = Mnemonic.convert(MNEMONIC_WORDS_FIXED);
+		Network network = Network.Production;
+		Protocol protocol = ProtocolFactory.getInstance(ProtocolEnum.Ethereum, network);
+		String targetWallet = EthereumAccount.WALLET_METAMASK;
 		
-		Account account = protocol.createAccount(mnemonicWords, PASS_PHRASE, network);
-		String secret = account.deriveSecret(mnemonicWords, PASS_PHRASE);
-		String address = account.deriveAddress(secret, network);
+		Account account = protocol.createAccount(mnemonicWords, PASS_PHRASE, network, targetWallet);
+		String secret = account.deriveSecret(mnemonicWords);
+		String address = account.deriveAddress(secret);
 		
 		assertNotNull(account);
 		assertNotNull(secret);
 		assertNotNull(address);
-
-		assertEquals(SECRET_FIXED, secret, "Secret mismatch");
+		
 		assertEquals(ADDRESS_FIXED, address, "Address mismatch");
+		assertEquals(SECRET_FIXED, secret, "Secret mismatch");
 		
 		assertEquals(secret, account.getSecret());
 		assertEquals(address, account.getAddress());
@@ -62,14 +52,15 @@ public class EthereumAccountTest extends BaseTest {
 	@Test
 	public void testCreateAndRestore() throws IOException, JSONException {
 		Network network = Network.Production;
-		Protocol protocol = ProtocolFactory.getInstance(Technology.Ethereum, network);
+		Protocol protocol = ProtocolFactory.getInstance(ProtocolEnum.Ethereum, network);
 		List<String> mnemonicWords = protocol.generateMnemonicWords();
-		Account accountNew = protocol.createAccount(mnemonicWords, PASS_PHRASE, network);
+		String targetWallet = EthereumAccount.WALLET_METAMASK;
+		Account accountNew = protocol.createAccount(mnemonicWords, PASS_PHRASE, network, targetWallet);
 
 		assertNotNull(accountNew);
 		
 		JSONObject json = accountNew.toJson(false);
-		Account accountRestored = protocol.restoreAccount(json, PASS_PHRASE);
+		Account accountRestored = protocol.restoreAccount(json, PASS_PHRASE, targetWallet);
 		
 		assertEquals(accountNew, accountRestored);
 	}
@@ -80,7 +71,10 @@ public class EthereumAccountTest extends BaseTest {
 
 		Protocol protocol = new Ethereum(Network.Production);
 		List<String> mnemonicWords = protocol.generateMnemonicWords();
-		Account account = new EthereumAccount(mnemonicWords, PASS_PHRASE, protocol.getNetwork());
+		Network network = protocol.getNetwork();
+		String targetWallet = EthereumAccount.WALLET_METAMASK;
+		
+		Account account = new EthereumAccount(mnemonicWords, PASS_PHRASE, network, targetWallet);
 
 		log("mnemonic words: '%s'", String.join(" ", mnemonicWords));
 

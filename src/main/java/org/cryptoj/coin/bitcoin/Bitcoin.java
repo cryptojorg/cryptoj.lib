@@ -1,4 +1,4 @@
-package org.cryptoj.bitcoin;
+package org.cryptoj.coin.bitcoin;
 
 import java.util.List;
 
@@ -10,11 +10,13 @@ import org.bitcoinj.crypto.MnemonicCode;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.TestNet3Params;
 import org.bitcoinj.params.UnitTestParams;
+
 import org.cryptoj.core.Account;
 import org.cryptoj.core.Network;
 import org.cryptoj.core.Protocol;
-import org.cryptoj.core.Technology;
+import org.cryptoj.core.ProtocolEnum;
 import org.cryptoj.core.Wallet;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,7 +26,7 @@ public class Bitcoin extends Protocol {
 	public static final int MNEMONIC_LENGTH_MAX = 24;
 
 	public Bitcoin(Network network) {
-		super(Technology.Bitcoin, network);
+		super(ProtocolEnum.Bitcoin, network);
 	}
 
 	@Override
@@ -56,9 +58,9 @@ public class Bitcoin extends Protocol {
 	}
 
 	@Override
-	public Wallet createWallet(List<String> mnemonicWords, String passPhase) {
+	public Wallet createWallet(List<String> mnemonicWords, String passPhase, String targetWallet) {
 		validateMnemonicWords(mnemonicWords);
-		return new BitcoinWallet(mnemonicWords, passPhase, getNetwork());
+		return new BitcoinWallet(mnemonicWords, passPhase, getNetwork(), targetWallet);
 	}
 
 	@Override
@@ -74,21 +76,28 @@ public class Bitcoin extends Protocol {
 	}
 
 	@Override
-	public BitcoinAccount createAccount(List<String> mnemonicWords, String passPhrase, Network network) {		
+	public BitcoinAccount createAccount(List<String> mnemonicWords, String passPhrase, Network network, String targetWallet) {		
 		validateMnemonicWords(mnemonicWords);
-		return new BitcoinAccount(mnemonicWords, passPhrase, network);
+		return new BitcoinAccount(mnemonicWords, passPhrase, network, targetWallet);
 	}
 
 	@Override
-	public Account restoreAccount(JSONObject accountJson, String passPhrase) {
+	public Account restoreAccount(JSONObject accountJson, String passPhrase, String targetWallet) {
 		try {
-			return new BitcoinAccount(accountJson, passPhrase, getNetwork());
+			return new BitcoinAccount(accountJson, passPhrase, getNetwork(), targetWallet);
 		} 
 		catch (JSONException e) {
 			throw new IllegalArgumentException("Failed to create Bitcoin account from json object", e);
 		}
 	}
 
+
+	@Override
+	public String defaultTargetWallet() {
+		return BitcoinAccount.WALLET_DEFAULT;
+	}
+	
+	
 	public static NetworkParameters getNetworkParameters(Network network) {
 		if(Network.Production.equals(network)) {
 			return MainNetParams.get();

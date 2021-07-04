@@ -1,4 +1,4 @@
-package org.cryptoj.bitcoin;
+package org.cryptoj.coin.bitcoin;
 
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.crypto.DeterministicKey;

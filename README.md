@@ -1,39 +1,58 @@
 # cryptoj.lib
 
-[![Join the chat at https://gitter.im/cryptojorg/cryptoj.lib](https://badges.gitter.im/cryptojorg/cryptoj.lib.svg)](https://gitter.im/cryptojorg/cryptoj.lib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-Java Crypto Library for Bitcoin, Ethereum, Iota and more
+The goal of this Java library is to create paper wallets for different crypto currencies.
 
+## Warning/Current Status
 
-## Purpose
-The goal of this Java library is to provide a unified API to create and use paper wallets for different crypto currencies.
+The cryptoj library and the demo application are currently experimental/educational only. 
+No testing with real funds has taken place.
+
+## Main Features
+
+* Paper wallets (cold storage)
+* Multi-protocol (Bitcoin, Ethereum, ...)
+* Compliant with widely used Wallets (Electrum, Metamask)
+* Unified API
+* Open Source
 
 This repository also provides a sample application to demonstrate the usage of the provided API. So far the following currencies are supported 
 
 * Bitcoin
 * Ethereum
-* Iota
 
-## Warning/Current Status
+## Technical Backgound
 
-This library and the demo application are currently experimental/educational only. 
-No testing with real funds has taken place.
+Behind the scences the library creates hierarchical deterministic wallets from mnemonic seed phrases. 
+For this the following standards are used.
 
-## Run the Application
+* [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) Mnemonic code for generating deterministic keys 
+* [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) Hierarchical Deterministic Wallets 
+* [BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) Multi-Account Hierarchy for Deterministic Wallets
+
+The implementation of the library relies on widely used Java libraries for Bitcoin and Ethereum:
+
+* [bitcoinj](https://github.com/bitcoinj/bitcoinj)
+* [web3j](https://github.com/web3j/web3j)
+
+## Building the Library/Sample Application
 
 After cloning this repo build the command line tool using Maven.
 
-```
+```bash
 mvn clean package
 ```
 
 The result of the Maven build is an executable JAR file.
 
-### Creating Paper Wallets
+### Creating Bitcoin Paper Wallets
 
-Use the following command to create a paper wallet. For the example we will create a Bitcoin wallet.
+Use the following command to create a Bitcoin paper wallet. 
 
-```
-java -jar target/cryptoj-lib-0.1.0-SNAPSHOT.jar -d . -p "test pass phrase" -t bitcoin
+```bash
+java -jar target/cryptoj-lib-0.2.0-SNAPSHOT.jar \
+-pp "test pass phrase" \
+-m "expose dwarf coyote broken alert rifle fade novel estate output about repair" \
+-p Bitcoin
 ```
 
 This will lead to an output similar to the one below
@@ -44,10 +63,11 @@ writing html and png output files ...
 files successfully written to directory
 wallet file: ./1EQVGkJN6V8QdZ3ANsnXCHmhZRnnxL7Kx1.json
 protocol: Bitcoin (Production)
+wallet app: Electrum
 address: 1EQVGkJN6V8QdZ3ANsnXCHmhZRnnxL7Kx1
-encrypted: true
+mnemonic: expose dwarf coyote broken alert rifle fade novel estate output about repair
 pass phrase: test pass phrase
-seed: expose dwarf coyote broken alert rifle fade novel estate output about repair
+encrypted: true
 ```
 
 Three files have been created
@@ -66,4 +86,48 @@ Using the created seed phrase "expose dwarf coyote broken alert rifle fade novel
 Using the Electrum wallet this leads to the same receive address as provided by the command line tool.
 
 ![Electrum Receive Address](/screenshots/electrum_receive_address.png)
+
+
+### Creating Ethereum Paper Wallets
+
+Use the following command to create a Ethereum paper wallet. 
+
+```bash
+java -jar target/cryptoj-lib-0.2.0-SNAPSHOT.jar \
+-pp "test pass phrase" \
+-m "expose dwarf coyote broken alert rifle fade novel estate output about repair" \
+-p Ethereum
+```
+
+This will lead to an output similar to the one below
+
+```
+writing wallet file ...
+writing html and png output files ...
+files successfully written to directory
+wallet file: ./0xF2E12BCFE9CF398b24492Df9fc02Af3397ED719f.json
+protocol: Ethereum (Production)
+wallet app: MetaMask
+address: 0xF2E12BCFE9CF398b24492Df9fc02Af3397ED719f
+mnemonic: expose dwarf coyote broken alert rifle fade novel estate output about repair
+pass phrase: test pass phrase
+encrypted: true
+```
+
+Three files have been created
+
+* A HTML file for printing (0xF2E12BCFE9CF398b24492Df9fc02Af3397ED719f.html)
+* The actual wallet file (0xF2E12BCFE9CF398b24492Df9fc02Af3397ED719f.json)
+* The corresponding address as QR code (0xF2E12BCFE9CF398b24492Df9fc02Af3397ED719f.png)
+
+An HTML output looks as shown  below.
+![HTML Page](/screenshots/ethereum_paper_wallet.png)
+
+Using the created seed phrase "expose dwarf coyote broken alert rifle fade novel estate output about repair" may be used to restore the wallet with [MetaMask wallet](https://metamask.io/).
+
+![MetaMask account restoration](/screenshots/metamask_restore.png)
+
+Using the Electrum wallet this leads to the same receive address as provided by the command line tool.
+
+![MetaMask Account](/screenshots/metamask_address.png)
 

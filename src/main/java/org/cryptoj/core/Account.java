@@ -8,8 +8,9 @@ import org.json.JSONObject;
 
 public abstract class Account {
 
-	public static final String JSON_TECHNOLOGY = "technology";
+	public static final String JSON_PROTOCOL = "protocol";
 	public static final String JSON_NETWORK = "network";
+	public static final String JSON_WALLET = "wallet";
 
 	public static final String JSON_ADDRESS = "address";
 	public static final String JSON_SECRET = "secret";
@@ -17,6 +18,7 @@ public abstract class Account {
 	public static final String JSON_IV = "iv";
 
 	private String address;
+	private String wallet;
 	private String secret;
 	private String passPhrase;
 	private Protocol protocol;
@@ -26,24 +28,58 @@ public abstract class Account {
 		processProtocol(protocol);
 	}
 	
-	public Account(List<String> mnemonicWords, String passPhrase, Protocol protocol) {
+	public Account(List<String> mnemonicWords, String passPhrase, Protocol protocol, String targetWallet) {
 		this(passPhrase, protocol);
 		
-		secret = deriveSecret(mnemonicWords, getPassPhrase());
-		address = deriveAddress(getSecret(), getNetwork());
+		processWallet(targetWallet);
+				
+		secret = deriveSecret(mnemonicWords);
+		address = deriveAddress(secret);
 	}
 
-	public Account(JSONObject node, String passPhrase, Protocol protocol) throws JSONException {
+	public Account(JSONObject node, String passPhrase, Protocol protocol, String targetWallet) throws JSONException {
 		this(passPhrase, protocol);
 		
+		processWallet(targetWallet);
 		processAddress(node);
 		processSecret(node);
 	}
 
-	public abstract String deriveSecret(List<String> menmonicWords, String passPhrase);
+	/** 
+	 * Checks if the provided target wallet type is supported by the current implementation
+	 * @param targetWallet the desired target wallet
+	 * @return true iff the provided target wallet type is supported
+	 */
+	public abstract boolean isSupported(String targetWallet);
+
+	/** 
+	 * Provides information regarding setup of the target wallet application.
+	 * Based on this info the user is supposed to be able to create the corresponding account in the target wallet application.
+	 */
+	public abstract String getWalletInfo();
 	
-	public abstract String deriveAddress(String secret, Network network);
+	/** 
+	 * Creates the secret string using the provided mnemonic words.
+	 * The resulting secret may then be used to derive the account address via @link deriveAddress.
+	 * @return true iff the provided target wallet type is supported
+	 */
+	public abstract String deriveSecret(List<String> menmonicWords);
 	
+	/**
+	 * Returns the account address for the specified secret
+	 * @param secret used to (deterministically) derive the account address
+	 * @return the first account address for this accounts target wallet
+	 */
+	public abstract String deriveAddress(String secret);
+	
+	/**
+	 * Returns the account address for the specified secret and BIP44 path
+	 * @param secret used to (deterministically) derive the account address
+	 * @param path BIP44 path in the format of an int array
+	 * @return the first account address for this accounts target wallet
+	 */
+	public abstract String deriveAddress(String secret, int [] path);
+		
 	/**
 	 * Sets pass phrase member variable and converts a null value into an empty string.
 	 */
@@ -66,6 +102,7 @@ public abstract class Account {
 	 * Extracts secret member variable from provided node and verifies against the address.
 	 */
 	private void processSecret(JSONObject node) throws JSONException {
+		
 		// check and extract seed
 		if(!node.has(JSON_SECRET)) {
 			throw new JSONException("Account node has no secret attribute");
@@ -100,7 +137,7 @@ public abstract class Account {
 			secret = node.getString(JSON_SECRET);
 		}
 		
-		String addressExpected = deriveAddress(secret, getNetwork());
+		String addressExpected = deriveAddress(secret);
 		if(!address.equals(addressExpected)) {
 			throw new IllegalArgumentException(
 					String.format("Address verification failure. Expected '%s' but found '%s'", addressExpected, address));
@@ -113,6 +150,18 @@ public abstract class Account {
 		}
 
 		this.protocol = protocol;
+	}
+
+	private void processWallet(String targetWallet) {
+		if(targetWallet == null) {
+			throw new IllegalArgumentException("Target wallet must not be null");
+		}
+		
+		if(!isSupported(targetWallet)) {
+			throw new IllegalArgumentException("Unsupported target wallet '" + targetWallet + "'");
+		}
+
+		this.wallet = targetWallet;
 	}
 
 	/**
@@ -140,10 +189,11 @@ public abstract class Account {
 		JSONObject obj = new JSONObject();
 		boolean encrypted = false;
 
+		obj.put(JSON_WALLET, getWallet());
 		obj.put(JSON_ADDRESS, getAddress());
 
 		if(includeProtocolInfo) {
-			obj.put(JSON_TECHNOLOGY, getTechnology());
+			obj.put(JSON_PROTOCOL, getProtocol());
 			obj.put(JSON_NETWORK, getNetwork());
 		}
 
@@ -168,12 +218,8 @@ public abstract class Account {
 		return obj;
 	}
 	
-	protected void setAddress(String address) {
-		this.address = address;
-	}
-
-	public void setSecret(String secret) {
-		this.secret = secret;
+	public String getWallet() {
+		return wallet;
 	}
 	
 	public String getAddress() {
@@ -196,8 +242,8 @@ public abstract class Account {
 		return protocol == null ? null : protocol.getNetwork();
 	}	
 
-	public Technology getTechnology() {
-		return protocol == null ? null : protocol.getTechnology();
+	public ProtocolEnum getProtocolEnum() {
+		return protocol == null ? null : protocol.getProtocolEnum();
 	}	
 
 	/**

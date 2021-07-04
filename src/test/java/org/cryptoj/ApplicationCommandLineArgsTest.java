@@ -9,13 +9,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.cryptoj.coin.ethereum.EthereumAccount;
 import org.cryptoj.common.BaseTest;
 import org.cryptoj.core.Mnemonic;
 import org.cryptoj.core.Network;
 import org.cryptoj.core.Protocol;
-import org.cryptoj.core.Technology;
+import org.cryptoj.core.ProtocolEnum;
 import org.cryptoj.core.Wallet;
-
 import org.junit.jupiter.api.Test;
 
 public class ApplicationCommandLineArgsTest extends BaseTest {
@@ -46,7 +46,7 @@ public class ApplicationCommandLineArgsTest extends BaseTest {
 		assertEquals(PASS_PHRASE, wallet.getPassPhrase());
 		
 		// test protocol
-		assertEquals(Technology.Bitcoin, protocol.getTechnology());
+		assertEquals(ProtocolEnum.Bitcoin, protocol.getProtocolEnum());
 		assertEquals(Network.Production, protocol.getNetwork());
 		
 		List<String> mnemonic = wallet.getMnemonicWords();
@@ -63,14 +63,14 @@ public class ApplicationCommandLineArgsTest extends BaseTest {
 	@Test
 	public void testBitcoinTestnetProtocolArgument() {
 		Application app = new Application();
-		String [] args = {Application.SWITCH_PASS_PHRASE, PASS_PHRASE, Application.SWITCH_TECHNOLOGY, "bitcoin", Application.SWITCH_NETWORK, "test"};
+		String [] args = {Application.SWITCH_PASS_PHRASE, PASS_PHRASE, Application.SWITCH_PROTOCOL, "bitcoin", Application.SWITCH_NETWORK, "test"};
 		log("testing args: " + join(args));
 		app.processCommandLine(args);
 		
 		Wallet wallet = app.createWallet();
 		Protocol protocol = wallet.getProtocol();
 		
-		assertEquals(Technology.Bitcoin, protocol.getTechnology());
+		assertEquals(ProtocolEnum.Bitcoin, protocol.getProtocolEnum());
 		assertEquals(Network.Test, protocol.getNetwork());
 	}
 	
@@ -80,32 +80,20 @@ public class ApplicationCommandLineArgsTest extends BaseTest {
 	@Test
 	public void testEthereumLocalProtocolArgument() {
 		Application app = new Application();
-		String [] args = {Application.SWITCH_PASS_PHRASE, PASS_PHRASE, Application.SWITCH_TECHNOLOGY, "ethereum", Application.SWITCH_NETWORK, "local"};
+		String [] args = {
+				Application.SWITCH_PASS_PHRASE, PASS_PHRASE, 
+				Application.SWITCH_PROTOCOL, "ethereum", 
+				Application.SWITCH_NETWORK, "local",
+				Application.SWITCH_WALLET, EthereumAccount.WALLET_METAMASK
+			};
 		log("testing args: " + join(args));
 		app.processCommandLine(args);
 		
 		Wallet wallet = app.createWallet();
 		Protocol protocol = wallet.getProtocol();
 		
-		assertEquals(Technology.Ethereum, protocol.getTechnology());
+		assertEquals(ProtocolEnum.Ethereum, protocol.getProtocolEnum());
 		assertEquals(Network.Local, protocol.getNetwork());
-	}
-	
-	/**
-	 * Test that explicit iota production network works 
-	 */
-	@Test
-	public void testIotaProductionProtocolArgument() {
-		Application app = new Application();
-		String [] args = {Application.SWITCH_PASS_PHRASE, PASS_PHRASE, Application.SWITCH_TECHNOLOGY, "iota", Application.SWITCH_NETWORK, "production"};
-		log("testing args: " + join(args));
-		app.processCommandLine(args);
-		
-		Wallet wallet = app.createWallet();
-		Protocol protocol = wallet.getProtocol();
-		
-		assertEquals(Technology.Iota, protocol.getTechnology());
-		assertEquals(Network.Production, protocol.getNetwork());
 	}
 	
 	/**

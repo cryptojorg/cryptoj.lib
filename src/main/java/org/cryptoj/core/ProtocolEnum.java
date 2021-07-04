@@ -1,11 +1,10 @@
 package org.cryptoj.core;
 
-public enum Technology {
+public enum ProtocolEnum {
 	Bitcoin, 
-	Ethereum, 
-	Iota;
+	Ethereum;
 	
-	public static Technology get(String name) {
+	public static ProtocolEnum get(String name) {
 		if(name == null || name.length() == 0) {
 			throw new IllegalArgumentException("Provided name must not be null or empty");
 		}
@@ -18,11 +17,8 @@ public enum Technology {
 		else if(Ethereum.name().toLowerCase().equals(query)) {
 			return Ethereum;
 		}
-		else if(Iota.name().toLowerCase().equals(query)) {
-			return Iota;
-		}
 		else {
-			throw new IllegalArgumentException("Unknown technology:" + name);
+			throw new IllegalArgumentException("Unknown protocol:" + name);
 		}
 	}
 }

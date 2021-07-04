@@ -8,31 +8,33 @@ import org.json.JSONObject;
 public abstract class Wallet {
 
 	public static final String JSON_VERSION = "version";
-	public static final String JSON_VERSION_VALUE = "1.0";
+	public static final String JSON_VERSION_VALUE = "2.0";
 	public static final String JSON_ACCOUNT = "account";
 
-	public static final String JSON_TECHNOLOGY = "technology";
+	public static final String JSON_PROTOCOL = "protocol";
 	public static final String JSON_NETWORK = "network";
+	public static final String JSON_WALLET = "wallet";
 
 	public static final String JSON_FILE_EXTENSION = "json";
 
 	private List<String> mnemonicWords = null;
 	protected Account account = null;
 
-	protected Wallet(List<String> mnemonicWords, String passPhrase, Protocol protocol) {
+	protected Wallet(List<String> mnemonicWords, String passPhrase, Protocol protocol, String targetWallet) {
 		processProtocol(protocol);
 		processMnemonicWords(mnemonicWords, protocol);
 
-		account = protocol.createAccount(mnemonicWords, passPhrase, protocol.getNetwork());
+		account = protocol.createAccount(mnemonicWords, passPhrase, protocol.getNetwork(), targetWallet);
 	}
 
 	public Wallet(JSONObject walletJson, String passPhrase) throws JSONException {
 		validateWalletJson(walletJson);
 
-		JSONObject accountJson = walletJson.getJSONObject(JSON_ACCOUNT);
 		Protocol protocol = ProtocolFactory.getInstance(walletJson);
 
-		account = protocol.restoreAccount(accountJson, passPhrase);
+		JSONObject accountJson = walletJson.getJSONObject(JSON_ACCOUNT);
+		String wallet = walletJson.getString(JSON_WALLET);
+		account = protocol.restoreAccount(accountJson, passPhrase, wallet);
 	}
 
 	protected void processProtocol(Protocol p) {
@@ -105,10 +107,11 @@ public abstract class Wallet {
 			JSONObject obj = new JSONObject();
 
 			obj.put(JSON_VERSION, JSON_VERSION_VALUE);
+			obj.put(JSON_WALLET, getAccount().getWallet());
 
 			Protocol p = getProtocol();
 			if(p != null) {
-				obj.put(JSON_TECHNOLOGY, p.getTechnology());
+				obj.put(JSON_PROTOCOL, p.getProtocolEnum());
 				obj.put(JSON_NETWORK, p.getNetwork());
 			}
 
@@ -134,7 +137,7 @@ public abstract class Wallet {
 		}
 
 		// check and extract protocol
-		if(!walletJson.has(JSON_TECHNOLOGY)) {
+		if(!walletJson.has(JSON_PROTOCOL)) {
 			throw new JSONException("Wallet has no technology attribute");
 		}
 
@@ -170,7 +173,6 @@ public abstract class Wallet {
 
 		// special case mnemonic words: a restored wallet does not have mnemonic words
 		// as a result this check only makes sense if both wallets have non null mnemonic words
-		// TODO decide if wallet should have a flag if it has been freshly created or restored from a file
 		if(mnemonicWords != null && other.mnemonicWords != null) {
 			if(!mnemonicWords.equals(other.mnemonicWords)) {
 				return false;

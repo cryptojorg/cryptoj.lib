@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 
 import org.cryptoj.common.BaseTest;
-import org.cryptoj.core.Mnemonic;
 import org.cryptoj.utility.EntropyUtility;
 import org.junit.jupiter.api.Test;
 

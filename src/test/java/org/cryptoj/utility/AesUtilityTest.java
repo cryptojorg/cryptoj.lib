@@ -12,7 +12,6 @@ import java.io.IOException;
 import javax.crypto.SecretKey;
 
 import org.cryptoj.common.BaseTest;
-import org.cryptoj.utility.AesUtility;
 import org.junit.jupiter.api.Test;
 
 public class AesUtilityTest extends BaseTest {

@@ -1,11 +1,11 @@
-package org.cryptoj.ethereum;
+package org.cryptoj.coin.ethereum;
 
 import java.util.List;
 
 import org.cryptoj.core.Account;
 import org.cryptoj.core.Network;
 import org.cryptoj.core.Protocol;
-import org.cryptoj.core.Technology;
+import org.cryptoj.core.ProtocolEnum;
 import org.cryptoj.core.Wallet;
 import org.json.JSONObject;
 
@@ -15,17 +15,12 @@ public class Ethereum extends Protocol {
 	public static final int MNEMONIC_LENGTH_MAX = 24;
 
 	public Ethereum(Network network) {
-		super(Technology.Ethereum, network);
+		super(ProtocolEnum.Ethereum, network);
 	}
 
 	
 	@Override
 	public List<String> generateMnemonicWords() {
-		// TODO re-enable once web3j is working again ...
-//		byte [] entropy = Entropy.generateEntropy();
-//		String mnemonicString = MnemonicUtils.generateMnemonic(entropy); 
-//		return Arrays.asList(mnemonicString.split(" "));
-		
 		return super.generateMnemonicWords();
 	}
 	
@@ -51,9 +46,9 @@ public class Ethereum extends Protocol {
 	}
 	
 	@Override
-	public Wallet createWallet(List<String> mnemonicWords, String passPhase) {
+	public Wallet createWallet(List<String> mnemonicWords, String passPhase, String targetWallet) {
 		validateMnemonicWords(mnemonicWords);
-		return new EthereumWallet(mnemonicWords, passPhase, getNetwork());
+		return new EthereumWallet(mnemonicWords, passPhase, getNetwork(), targetWallet);
 	}
 
 	@Override
@@ -67,13 +62,19 @@ public class Ethereum extends Protocol {
 	}
 
 	@Override
-	public Account createAccount(List<String> mnemonicWords, String passPhrase, Network network) {
+	public Account createAccount(List<String> mnemonicWords, String passPhrase, Network network, String targetWallet) {
 		validateMnemonicWords(mnemonicWords);
-		return new EthereumAccount(mnemonicWords, passPhrase, network);
+		return new EthereumAccount(mnemonicWords, passPhrase, network, targetWallet);
 	}
 
 	@Override
-	public Account restoreAccount(JSONObject accountJson, String passPhrase) {
-		return new EthereumAccount(accountJson, passPhrase, getNetwork());
+	public Account restoreAccount(JSONObject accountJson, String passPhrase, String targetWallet) {
+		return new EthereumAccount(accountJson, passPhrase, getNetwork(), targetWallet);
+	}
+
+
+	@Override
+	public String defaultTargetWallet() {
+		return EthereumAccount.WALLET_DEFAULT;
 	}
 }

@@ -1,10 +1,10 @@
-package org.cryptoj.bitcoin;
+package org.cryptoj.coin.bitcoin;
 
 import java.util.List;
 
 import org.cryptoj.core.Network;
 import org.cryptoj.core.ProtocolFactory;
-import org.cryptoj.core.Technology;
+import org.cryptoj.core.ProtocolEnum;
 import org.cryptoj.core.Wallet;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,8 +17,8 @@ public class BitcoinWallet extends Wallet {
 		super(walletJson, passPhrase);
 	}
 
-	public BitcoinWallet(List<String> mnemonicWords, String passPhrase, Network network) {
-		super(mnemonicWords, passPhrase, ProtocolFactory.getInstance(Technology.Bitcoin, network));
+	public BitcoinWallet(List<String> mnemonicWords, String passPhrase, Network network, String targetWallet) {
+		super(mnemonicWords, passPhrase, ProtocolFactory.getInstance(ProtocolEnum.Bitcoin, network), targetWallet);
 	}
 
 	@Override

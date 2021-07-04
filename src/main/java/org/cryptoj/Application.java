@@ -3,12 +3,13 @@ package org.cryptoj;
 import java.io.File;
 import java.util.List;
 
+import org.cryptoj.coin.bitcoin.BitcoinAccount;
 import org.cryptoj.core.Account;
 import org.cryptoj.core.Mnemonic;
 import org.cryptoj.core.Network;
 import org.cryptoj.core.Protocol;
 import org.cryptoj.core.ProtocolFactory;
-import org.cryptoj.core.Technology;
+import org.cryptoj.core.ProtocolEnum;
 import org.cryptoj.core.Wallet;
 import org.cryptoj.utility.FileUtility;
 import org.cryptoj.utility.QrCodeUtility;
@@ -21,35 +22,40 @@ import com.beust.jcommander.Parameter;
 public class Application {
 
 	public static final String COMMAND_NAME = "java -jar bpgw.jar";
-	public static final String SWITCH_TECHNOLOGY = "-t";
+	public static final String SWITCH_PROTOCOL = "-p";
 	public static final String SWITCH_NETWORK = "-n";
 	public static final String SWITCH_DIRECTORY = "-d";
 	public static final String SWITCH_MNEMONIC = "-m";
-	public static final String SWITCH_PASS_PHRASE = "-p";
+	public static final String SWITCH_PASS_PHRASE = "-pp";
+	public static final String SWITCH_WALLET = "-w";
 	public static final String SWITCH_VERIFY = "-v";
 
-	public static final Technology DEFAULT_TECHNOLOGY = Technology.Bitcoin;
+	public static final ProtocolEnum DEFAULT_PROTOCOL = ProtocolEnum.Bitcoin;
 	public static final Network DEFAULT_NETWORK = Network.Production;
-	public static final String DEFAULT_DIRECTORY = System.getProperty("user.home");
+	public static final String DEFAULT_WALLET = BitcoinAccount.WALLET_ELECTRUM;
+	public static final String DEFAULT_DIRECTORY = "."; // System.getProperty("user.home");
 
 	public static final String EXT_JSON = "json";
 	public static final String EXT_HTML = "html";
 	public static final String EXT_PNG = "png";
 
-	@Parameter(names = {SWITCH_TECHNOLOGY, "--technology"}, description = "technology")
-	private String technology = DEFAULT_TECHNOLOGY.name();
+	@Parameter(names = {SWITCH_PROTOCOL, "--protocol"}, description = "protocol, eg. Ethereum")
+	private String technology = DEFAULT_PROTOCOL.name();
 
-	@Parameter(names = {SWITCH_NETWORK, "--network"}, description = "network")
+	@Parameter(names = {SWITCH_NETWORK, "--network"})
 	private String network = DEFAULT_NETWORK.name();
 
-	@Parameter(names = {SWITCH_DIRECTORY, "--directory"}, description = "target directory for files")
+	@Parameter(names = {SWITCH_DIRECTORY, "--directory"}, description = "target directory for output files")
 	private String targetDirectory = DEFAULT_DIRECTORY;
 
 	@Parameter(names = {SWITCH_MNEMONIC, "--mnemonic"}, description = "mnemonic sentence for the wallet file (default: generate new sentence)")
 	private String mnemonic;
 
-	@Parameter(names = {SWITCH_PASS_PHRASE, "--pass-phrase"}, description = "pass phrase for the wallet file")
+	@Parameter(names = {SWITCH_PASS_PHRASE, "--pass-phrase"}, description = "mandatory parameter: pass phrase for the wallet file")
 	private String passPhrase;
+
+	@Parameter(names = {SWITCH_WALLET, "--wallet"}, description = "target wallet, eg. metamask")
+	private String targetWallet;
 
 	@Parameter(names = {SWITCH_VERIFY, "--verify-wallet-file"}, description = "verify the specified wallet file")
 	private String walletFile = null;
@@ -57,7 +63,7 @@ public class Application {
 	@Parameter(names = {"-s", "--silent"}, description = "silent mode, suppress command line output")
 	private boolean silent = false;
 
-	@Parameter(names = {"-h", "--help"}, help = true)
+	@Parameter(names = {"-h", "--help"}, help = true, description = "show this help message")
 	private boolean help;
 
 	private Wallet wallet = null;
@@ -103,8 +109,9 @@ public class Application {
 	public Wallet createWallet() {
 		Protocol protocol = getProtocol();
 		List<String> mnemonicWords = getMnemonicWords(protocol);
+		String trgtWallet = getTargetWallet(protocol);
 
-		return protocol.createWallet(mnemonicWords, passPhrase);
+		return protocol.createWallet(mnemonicWords, passPhrase, trgtWallet);
 	}
 
 	public Wallet restoreWallet(File file) {
@@ -124,6 +131,14 @@ public class Application {
 		String fileContent = wallet.toString();
 		String fileName = getWalletFileName(wallet, path);
 		return FileUtility.saveToFile(fileContent, fileName);
+	}
+	
+	public String getTargetWallet(Protocol protocol) {
+		if(targetWallet == null || targetWallet.length() == 0) {
+			return protocol.defaultTargetWallet();
+		}
+		
+		return targetWallet;
 	}
 
 	public Wallet getWallet() {
@@ -160,7 +175,7 @@ public class Application {
 	}
 
 	public Protocol getProtocol() {
-		return ProtocolFactory.getInstance(Technology.get(technology), Network.get(network));
+		return ProtocolFactory.getInstance(ProtocolEnum.get(technology), Network.get(network));
 	}
 
 	private List<String> getMnemonicWords(Protocol protocol) {
@@ -199,21 +214,18 @@ public class Application {
 	}
 
 	private void logWalletInfo(Wallet wallet, String pathToDirectory) {
-		Account account = wallet.getAccount();
-		String seed = account.getSecret();
+		String targetWallet = wallet.getAccount().getWallet();
 		String address = wallet.getAccount().getAddress();
+		String mnemonic = Mnemonic.convert(wallet.getMnemonicWords());
 		String passPhrase = wallet.getPassPhrase();
+		
 		log("wallet file: " + getWalletFileName(wallet, pathToDirectory));
 		log("protocol: " + wallet.getProtocol());
+		log("wallet app: " + targetWallet);
 		log("address: " + address);
-		log("encrypted: " + (passPhrase != null && passPhrase.length() > 0));
+		log("mnemonic: " + mnemonic);
 		log("pass phrase: " + passPhrase);		
-		log("seed: " + seed);
-
-		String mnemonic = Mnemonic.convert(wallet.getMnemonicWords());
-		if(!mnemonic.equals(seed)) {
-			log("mnemonic: " + mnemonic);
-		}
+		log("encrypted: " + (passPhrase != null && passPhrase.length() > 0));
 	}
 
 	private void log(String message) {
