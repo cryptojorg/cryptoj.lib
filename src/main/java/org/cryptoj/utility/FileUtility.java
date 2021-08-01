@@ -118,7 +118,7 @@ public class FileUtility {
 		}
 
 		if(file.exists()) {
-			throw new FileException(String.format("File %s already exits. Not writing anythiong", file));
+			throw new FileException(String.format("File %s already exits. Not writing anything", file));
 		}
 	}
 

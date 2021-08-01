@@ -37,19 +37,40 @@ The implementation of the library relies on widely used Java libraries for Bitco
 ## Building the Library/Sample Application
 
 After cloning this repo build the command line tool using Maven.
+You may use the provided dockerfile for this
+
+### Create Docker Image
+
+Create the docker image to build/run the cryptoy.lib command line tool
+
+```bash
+docker build -t java11_mvn .
+```
+
+### Run Docker Container
+
+Use the image created above to start a container and work with the command line tool
+
+```bash
+docker run -it --rm \
+-v $HOME/.m2:/root/.m2 \
+-v $PWD:/usr/src/app \
+java11_mvn bash
+```
+
+To build the cryptoj library run
 
 ```bash
 mvn clean package
 ```
 
-The result of the Maven build is an executable JAR file.
-
 ### Creating Bitcoin Paper Wallets
 
-Use the following command to create a Bitcoin paper wallet. 
+Inside the docker container use the following command to create a Bitcoin paper wallet. 
 
 ```bash
 java -jar target/cryptoj-lib-0.2.0-SNAPSHOT.jar \
+-d output \
 -pp "test pass phrase" \
 -m "expose dwarf coyote broken alert rifle fade novel estate output about repair" \
 -p Bitcoin
@@ -61,7 +82,7 @@ This will lead to an output similar to the one below
 writing wallet file ...
 writing html and png output files ...
 files successfully written to directory
-wallet file: ./1EQVGkJN6V8QdZ3ANsnXCHmhZRnnxL7Kx1.json
+wallet file: output/1EQVGkJN6V8QdZ3ANsnXCHmhZRnnxL7Kx1.json
 protocol: Bitcoin (Production)
 wallet app: Electrum
 address: 1EQVGkJN6V8QdZ3ANsnXCHmhZRnnxL7Kx1
@@ -70,7 +91,7 @@ pass phrase: test pass phrase
 encrypted: true
 ```
 
-Three files have been created
+Three files have been created in folder ./output
 
 * A HTML file for printing (1EQVGkJN6V8QdZ3ANsnXCHmhZRnnxL7Kx1.html)
 * The actual wallet file (1EQVGkJN6V8QdZ3ANsnXCHmhZRnnxL7Kx1.json)
@@ -94,6 +115,7 @@ Use the following command to create a Ethereum paper wallet.
 
 ```bash
 java -jar target/cryptoj-lib-0.2.0-SNAPSHOT.jar \
+-d output \
 -pp "test pass phrase" \
 -m "expose dwarf coyote broken alert rifle fade novel estate output about repair" \
 -p Ethereum
@@ -105,7 +127,7 @@ This will lead to an output similar to the one below
 writing wallet file ...
 writing html and png output files ...
 files successfully written to directory
-wallet file: ./0xF2E12BCFE9CF398b24492Df9fc02Af3397ED719f.json
+wallet file: output/0xF2E12BCFE9CF398b24492Df9fc02Af3397ED719f.json
 protocol: Ethereum (Production)
 wallet app: MetaMask
 address: 0xF2E12BCFE9CF398b24492Df9fc02Af3397ED719f
@@ -114,7 +136,7 @@ pass phrase: test pass phrase
 encrypted: true
 ```
 
-Three files have been created
+Three files have been created in folder ./output
 
 * A HTML file for printing (0xF2E12BCFE9CF398b24492Df9fc02Af3397ED719f.html)
 * The actual wallet file (0xF2E12BCFE9CF398b24492Df9fc02Af3397ED719f.json)

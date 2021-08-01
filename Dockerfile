@@ -1,9 +1,5 @@
-FROM openjdk:11
+FROM adoptopenjdk/maven-openjdk11:latest
 
 WORKDIR /usr/src/app
 
-COPY src/main/java/helloworld.java /usr/src/app
-
-RUN javac helloworld.java
-
-CMD ["java", "helloworld"]
+CMD ["java", "-version"]

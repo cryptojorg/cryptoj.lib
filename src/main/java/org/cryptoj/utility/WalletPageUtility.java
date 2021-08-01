@@ -16,7 +16,7 @@ public class WalletPageUtility extends HtmlUtility {
 
 	// TODO verify version with the one in the pom.xml
 	public static final String VERSION = "0.2.0-SNAPSHOT";
-	public static final String REPOSITORY = "https://github.com/matthiaszimmermann/TODO";
+	public static final String REPOSITORY = "https://github.com/cryptojorg/cryptoj.lib";
 
 	public static final String TITLE = "%s Paper Wallet (%s)";
 	public static final String LOGO = "/%s_logo.png"; 
@@ -115,7 +115,7 @@ public class WalletPageUtility extends HtmlUtility {
 
 		// qr code for mnemonic		
 		HtmlUtility.addOpenDiv(html, CSS_COLUMN);
-		HtmlUtility.addParagraph(html, "QR Code mnemonic", CSS_CAPTION);
+		HtmlUtility.addParagraph(html, "QR Code Mnemonic", CSS_CAPTION);
 		HtmlUtility.addEncodedImage(html, mnemonicQrCode, 200, CSS_IMG_SECRET);
 		HtmlUtility.addCloseDiv(html);
 
@@ -180,7 +180,7 @@ public class WalletPageUtility extends HtmlUtility {
 		HtmlUtility.addCloseDiv(html);		
 
 		// add footer content
-		String footer = String.format("Page created with Paper Wallet Generator [%s] V %s", REPOSITORY, VERSION);
+		String footer = String.format("Paper wallet created using %s V %s", REPOSITORY, VERSION);
 		HtmlUtility.addOpenFooter(html, CSS_FOOTER);
 		HtmlUtility.addContent(html, footer);
 		HtmlUtility.addCloseFooter(html);
